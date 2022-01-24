@@ -1,0 +1,45 @@
+version: '3'
+services:
+  docker-mysql:
+    container_name: docker-mysql
+    image: mysql:8.0.27
+    environment:
+      MYSQL_DATABASE: montiringservice
+      MYSQL_ROOT_PASSWORD: Qwerty-2
+      MYSQL_ROOT_HOST: '%'
+    ports:
+      - "3306:3306"
+  process-monitoring-explorer:
+    container_name: explorer-service
+    image: ilnaz92/process-monitoring-explorer-service:1.0.3
+    environment:
+      PORT: 8081
+      OS: unix
+      PROCESS_MONITORING_SERVICE_HOST: 'http://process-monitoring-service:8080'
+    restart: always
+    ports:
+      - "8081:8081"
+  process-monitoring-service:
+    container_name: monitoring-service
+    restart: always
+    image: ilnaz92/process-monitoring-service:1.0.3
+    environment:
+      PORT: 8080
+      DB_URL: docker-mysql
+    ports:
+      - "8080:8080"
+    depends_on:
+      - docker-mysql
+      - process-monitoring-explorer
+  process-monitoring-ui:
+    container_name: monitoring-ui
+    restart: always
+    image: ilnaz92/process-monitoring-ui:1.0.3
+    environment:
+      PORT: 8083
+      PROCESS_MONITORING_SERVICE_HOST: 'http://process-monitoring-service:8080'
+    ports:
+      - "8083:8083"
+    depends_on:
+      - process-monitoring-service
+      - process-monitoring-explorer

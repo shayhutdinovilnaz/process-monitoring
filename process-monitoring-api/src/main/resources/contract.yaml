@@ -1,0 +1,101 @@
+openapi: 3.0.0
+
+info:
+  description: "This is a sample server process monitoring server."
+  version: "1.0.0"
+  title: "Operating systems monitoring"
+
+servers:
+  - url: http://localhost:8080/{basePath}/
+    variables:
+      username:
+        # note! no enum here means it is an open value
+        default: demo
+        description: this value is assigned by the service provider, in this example `gigantic-server.com`
+      basePath:
+        default: api/v2
+
+tags:
+  - name: "Operating system process structure"
+
+paths:
+  /process:
+    get:
+      summary: This is summary of process
+      tags:
+        - "Operating system process structure"
+      description: Return the list of processes in operating system
+      operationId: getAllProcess
+      responses:
+        "200":
+          description: This means its ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Process'
+
+  /process/switch/{switcherVar}:
+    put:
+      summary: Switcher  on/off  of updating info about process
+      operationId: switchProcessRefresh
+      tags:
+        - "Operating system process structure"
+      responses:
+        "200":
+          description: "successful operation"
+      parameters:
+        - name: "switcherVar"
+          in: "path"
+          description: "OK"
+          required: true
+          schema:
+            type : boolean
+
+  /process/saveAll:
+    post:
+      summary: Switcher  on/off  of updating info about process
+      operationId: saveAll
+      tags:
+        - "Operating system process structure"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Process'
+      responses:
+        "200":
+          description: "Process sucessfull proceeded"
+
+components:
+  schemas:
+    Process:
+      description: This is the process tree
+      type: object
+      required:
+        - pid
+        - usedCPU
+        - usedRAM
+        - user
+      properties:
+        pid:
+          description: PID
+          type: integer
+        user:
+          description: owner user
+          type: string
+        usedCPU:
+          description: info amout CPU using
+          type: string
+        usedRAM:
+          description: info about RAM using
+          type: string
+        children:
+          description: the lis of children process
+          type: array
+          items:
+            $ref: '#/components/schemas/Process'
